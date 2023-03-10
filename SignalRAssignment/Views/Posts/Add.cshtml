@@ -1,0 +1,44 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+<h1>Add new post</h1>
+
+<div>
+    <form method="post" action="/Post/OnAdd">
+        <div class="form-group">
+            <label class="control-label">Title</label>
+            <input name="title" placeholder="enter name" required type="text" class="form-control" />
+        </div>
+        <div class="form-group">
+            <label class="control-label">Content</label>
+            <input name="content" type="text" required class="form-control" />
+        </div>
+        <div class="form-group">
+            <label class="control-label">Author</label>
+            <select name="authorId" class="form-control">
+                <option>1</option>
+                <option>2</option>
+                <option>3</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label class="control-label">Category</label>
+            <select name="cateId" class="form-control">
+                <option>1</option>
+                <option>2</option>
+                <option>3</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label class="control-label">Created date</label>
+            <input name="createDate" type="date" required class="form-control" />
+        </div>
+        <div class="form-group">
+            <label class="control-label">Updated date</label>
+            <input name="updateDate" type="date" required class="form-control" />
+        </div>
+        <input class="btn btn-primary" type="submit" value="Add new" />
+    </form>
+</div>

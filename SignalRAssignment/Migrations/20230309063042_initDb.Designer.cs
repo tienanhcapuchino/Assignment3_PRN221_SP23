@@ -12,8 +12,8 @@ using SignalRAssignment.DataAccess;
 namespace SignalRAssignment.Migrations
 {
     [DbContext(typeof(SignalRDbContext))]
-    [Migration("20230309022033_initdb")]
-    partial class initdb
+    [Migration("20230309063042_initDb")]
+    partial class initDb
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -88,12 +88,6 @@ namespace SignalRAssignment.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PostID"), 1L, 1);
 
                     b.Property<int>("AppUsersUserId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("AuthorID")
-                        .HasColumnType("int");
-
-                    b.Property<int>("CategoryId")
                         .HasColumnType("int");
 
                     b.Property<string>("Content")

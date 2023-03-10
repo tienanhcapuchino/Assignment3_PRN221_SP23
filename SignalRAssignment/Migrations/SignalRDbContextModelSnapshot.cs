@@ -88,12 +88,6 @@ namespace SignalRAssignment.Migrations
                     b.Property<int>("AppUsersUserId")
                         .HasColumnType("int");
 
-                    b.Property<int>("AuthorID")
-                        .HasColumnType("int");
-
-                    b.Property<int>("CategoryId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Content")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");

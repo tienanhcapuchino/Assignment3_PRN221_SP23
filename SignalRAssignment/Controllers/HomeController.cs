@@ -1,4 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using SignalRAssignment.DataAccess;
+using SignalRAssignment.Entity;
 using SignalRAssignment.Models;
 using System.Diagnostics;
 
@@ -7,15 +10,26 @@ namespace SignalRAssignment.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly SignalRDbContext _rdbContext;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, SignalRDbContext context)
         {
             _logger = logger;
+            _rdbContext = context;
         }
 
         public IActionResult Index()
         {
-            return View();
+            try
+            {
+                var list = _rdbContext.Posts.Where(x => x.PublishStatus == 1).Include(x => x.AppUsers).Include(x => x.PostCategories).ToList();
+                return View(list);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                throw;
+            }
         }
 
         public IActionResult Privacy()
