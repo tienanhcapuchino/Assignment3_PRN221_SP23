@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SignalRAssignment.DataAccess;
+using SignalRAssignment.Entity;
 
 namespace SignalRAssignment.Controllers
 {
@@ -27,14 +28,50 @@ namespace SignalRAssignment.Controllers
                 throw;
             }
         }
+        public IActionResult Update(int id)
+        {
+            try
+            {
+                var categories = _rdbContext.PostCategories.ToList();
+                ViewBag.cate = categories;
+                var authors = _rdbContext.AppUsers.ToList();
+                ViewBag.author = authors;
+                var post = _rdbContext.Posts.SingleOrDefault(x => x.PostID == id);
+                return View(post);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                throw;
+            }
+        }
+        public IActionResult OnUpdate(Posts po)
+        {
+            try
+            {
+                var categories = _rdbContext.PostCategories.ToList();
+                ViewBag.cate = categories;
+                var authors = _rdbContext.AppUsers.ToList();
+                ViewBag.author = authors;
+                _rdbContext.Posts.Update(po);
+                _rdbContext.SaveChanges();
+                var list = _rdbContext.Posts.Include(x => x.AppUsers).Include(x => x.PostCategories).ToList();
+                return View("/Views/Posts/Index.cshtml", list);
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                throw;
+            }
+        }
         public IActionResult OnDelete(int id)
         {
             try
             {
-                var list = _rdbContext.Posts.Include(x => x.AppUsers).Include(x => x.PostCategories).ToList();
                 var post = _rdbContext.Posts.SingleOrDefault(x => x.PostID == id);
                 _rdbContext.Posts.Remove(post);
                 _rdbContext.SaveChanges();
+                var list = _rdbContext.Posts.Include(x => x.AppUsers).Include(x => x.PostCategories).ToList();
                 return View("/Views/Posts/Index.cshtml", list);
             }
             catch (Exception ex)
@@ -45,7 +82,30 @@ namespace SignalRAssignment.Controllers
         }
         public IActionResult Add()
         {
+            var categories = _rdbContext.PostCategories.ToList();
+            ViewBag.cate = categories;
+            var authors = _rdbContext.AppUsers.ToList();
+            ViewBag.author = authors;
             return View("/Views/Posts/Add.cshtml");
+        }
+        public IActionResult OnAdd(Posts po)
+        {
+            try
+            {
+                var categories = _rdbContext.PostCategories.ToList();
+                ViewBag.cate = categories;
+                var authors = _rdbContext.AppUsers.ToList();
+                ViewBag.author = authors;
+                _rdbContext.Posts.Add(po);
+                _rdbContext.SaveChanges();
+                var list = _rdbContext.Posts.Include(x => x.AppUsers).Include(x => x.PostCategories).ToList();
+                return View("/Views/Posts/Index.cshtml", list);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                throw;
+            }
         }
     }
 }
