@@ -9,6 +9,7 @@
 
 <div>
     <form method="post" action="/PostCategories/OnUpdate">
+        <input type="hidden" name="po.CategoryId" value="@Model.CategoryId" />
         <div class="form-group">
             <label class="control-label">Name</label>
             <input name="po.CategoryName" value="@Model.CategoryName" placeholder="enter name" required type="text" class="form-control" />

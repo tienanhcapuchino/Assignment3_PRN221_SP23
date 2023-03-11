@@ -69,6 +69,10 @@ namespace SignalRAssignment.Controllers
             try
             {
                 var post = _rdbContext.Posts.SingleOrDefault(x => x.PostID == id);
+                if (post == null)
+                {
+                    return NotFound();
+                }
                 _rdbContext.Posts.Remove(post);
                 _rdbContext.SaveChanges();
                 var list = _rdbContext.Posts.Include(x => x.AppUsers).Include(x => x.PostCategories).ToList();

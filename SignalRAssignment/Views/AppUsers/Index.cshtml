@@ -3,3 +3,35 @@
 *@
 @{
 }
+@using SignalRAssignment.Entity
+
+<a href="/AppUsers/Add" class="btn btn-primary">Add new</a>
+
+<table class="table">
+    <thead>
+        <tr class="table-primary">
+            <th>FullName</th>
+            <th>Email</th>
+            <th>Password</th>
+            <th>Address</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            foreach (AppUsers item in Model)
+            {
+                <tr>
+                    <td>@item.FullName</td>
+                    <td>@item.Email</td>
+                    <td>@item.Password</td>
+                    <td>@item.Address</td>
+                    <td>
+                        <a class="btn btn-primary" href="/AppUsers/OnDelete/@item.UserId">Delete</a>
+                        <a class="btn btn-primary" href="/AppUsers/Update/@item.UserId">Edit</a>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>

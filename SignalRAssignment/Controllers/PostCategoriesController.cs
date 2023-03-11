@@ -53,6 +53,10 @@ namespace SignalRAssignment.Controllers
             try
             {
                 var post = _context.PostCategories.SingleOrDefault(x => x.CategoryId == id);
+                if (post == null)
+                {
+                    return NotFound();
+                }
                 _context.PostCategories.Remove(post);
                 _context.SaveChanges();
                 var list = _context.PostCategories.ToList();

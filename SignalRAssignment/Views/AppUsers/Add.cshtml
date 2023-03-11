@@ -3,3 +3,26 @@
 *@
 @{
 }
+<h1>Add new AppUser</h1>
+
+<div>
+    <form method="post" action="/AppUsers/OnAdd">
+        <div class="form-group">
+            <label class="control-label">FullName</label>
+            <input name="us.FullName" placeholder="enter name" required type="text" class="form-control" />
+        </div>
+        <div class="form-group">
+            <label class="control-label">Email</label>
+            <input name="us.Email" placeholder="enter email" required type="email" class="form-control" />
+        </div>
+        <div class="form-group">
+            <label class="control-label">Password</label>
+            <input name="us.Password" placeholder="enter password" required type="password" class="form-control" />
+        </div>
+        <div class="form-group">
+            <label class="control-label">Address</label>
+            <input name="us.Address" placeholder="enter address" required type="text" class="form-control" />
+        </div>
+        <input class="btn btn-primary" type="submit" value="Add" />
+    </form>
+</div>
