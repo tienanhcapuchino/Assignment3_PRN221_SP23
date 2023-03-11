@@ -3,3 +3,31 @@
 *@
 @{
 }
+@using SignalRAssignment.Entity
+
+<a href="/PostCategories/Add" class="btn btn-primary">Add new</a>
+
+<table class="table">
+    <thead>
+        <tr class="table-primary">
+            <th>Category Name</th>
+            <th>Description</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            foreach (PostCategories item in Model)
+            {
+                <tr>
+                    <td>@item.CategoryName</td>
+                    <td>@item.Description</td>
+                    <td>
+                        <a class="btn  btn-primary" href="/PostCategories/OnDelete/@item.CategoryId">Delete</a>
+                        <a class="btn  btn-primary" href="/PostCategories/Update/@item.CategoryId">Edit</a>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
