@@ -32,6 +32,25 @@ namespace SignalRAssignment.Controllers
             }
         }
 
+        public IActionResult Search(string seachValue)
+        {
+            try
+            {
+                var list = _rdbContext.Posts.Where(x => x.PublishStatus == 1 
+                && (x.Title.Contains(seachValue) 
+                || x.Content.Contains(seachValue))).
+                Include(x => x.AppUsers).
+                Include(x => x.PostCategories).
+                ToList();
+                return View("/Views/Home/Index.cshtml", list);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                throw;
+            }
+        }
+
         public IActionResult Privacy()
         {
             return View();

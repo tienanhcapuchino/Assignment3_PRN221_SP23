@@ -8,6 +8,10 @@
 <a href="/Posts/Index" class="btn btn-primary">Posts management</a>
 <a href="/PostCategories/Index" class="btn btn-primary">PostCategories management</a>
 <a href="/AppUsers/Index" class="btn btn-primary">AppUsers management</a>
+<form method="post" action="/Home/Search">
+    <input type="search" value="" name="seachValue" placeholder="enter title or content to search" class="form-control" />
+    <input class="btn btn-primary" type="submit" value="Search"/>
+</form>
 <div style="display:flex; flex-wrap:wrap;gap:10px" class="container">
     @{
         foreach(Posts item in Model)
