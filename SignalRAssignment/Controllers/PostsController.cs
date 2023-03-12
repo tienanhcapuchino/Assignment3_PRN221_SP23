@@ -32,13 +32,24 @@ namespace SignalRAssignment.Controllers
         {
             try
             {
-                var list = _rdbContext.Posts.Where(x => x.PublishStatus == 1
+                List<Posts> result = new List<Posts>();
+                if (String.IsNullOrEmpty(seachValue))
+                {
+                    result = _rdbContext.Posts.
+                Include(x => x.AppUsers).
+                Include(x => x.PostCategories).ToList();
+                }
+                else
+                {
+                    result = _rdbContext.Posts.Where(x => x.PublishStatus == 1
                 && (x.Title.Contains(seachValue)
                 || x.Content.Contains(seachValue))).
                 Include(x => x.AppUsers).
                 Include(x => x.PostCategories).
                 ToList();
-                return View("/Views/Posts/Index.cshtml", list);
+                }
+                ViewBag.search = seachValue;
+                return View("/Views/Posts/Index.cshtml", result);
             }
             catch (Exception ex)
             {
@@ -76,7 +87,7 @@ namespace SignalRAssignment.Controllers
                 var list = _rdbContext.Posts.Include(x => x.AppUsers).Include(x => x.PostCategories).ToList();
                 return View("/Views/Posts/Index.cshtml", list);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
                 throw;
