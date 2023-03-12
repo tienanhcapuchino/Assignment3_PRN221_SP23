@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using SignalRAssignment.DataAccess;
 using SignalRAssignment.Entity;
+using SignalRAssignment.Hubs;
 
 namespace SignalRAssignment.Controllers
 {
@@ -9,17 +11,22 @@ namespace SignalRAssignment.Controllers
     {
         private readonly ILogger<PostsController> _logger;
         private readonly SignalRDbContext _rdbContext;
-        public PostsController(ILogger<PostsController> logger, SignalRDbContext rdbContext)
+        private readonly IHubContext<SignalRServer> _signalRHub;
+        public PostsController(ILogger<PostsController> logger, 
+            SignalRDbContext rdbContext,
+            IHubContext<SignalRServer> hubContext
+            )
         {
             _logger = logger;
             _rdbContext = rdbContext;
+            _signalRHub = hubContext;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
             try
             {
-                var list = _rdbContext.Posts.Include(x => x.AppUsers).Include(x => x.PostCategories).ToList();
+                var list = await _rdbContext.Posts.Include(x => x.AppUsers).Include(x => x.PostCategories).ToListAsync();
                 return View(list);
             }
             catch (Exception ex)
@@ -27,6 +34,12 @@ namespace SignalRAssignment.Controllers
                 _logger.LogError(ex.Message);
                 throw;
             }
+        }
+        [HttpGet]
+        public IActionResult GetPost()
+        {
+            var list = _rdbContext.Posts.Include(x => x.AppUsers).Include(x => x.PostCategories).ToList();
+            return Ok(list);
         }
         public IActionResult Search(string seachValue)
         {
@@ -74,16 +87,17 @@ namespace SignalRAssignment.Controllers
                 throw;
             }
         }
-        public IActionResult OnUpdate(Posts po)
+        public async Task <IActionResult> OnUpdate(Posts po)
         {
             try
             {
-                var categories = _rdbContext.PostCategories.ToList();
+                var categories = await _rdbContext.PostCategories.ToListAsync();
                 ViewBag.cate = categories;
                 var authors = _rdbContext.AppUsers.ToList();
                 ViewBag.author = authors;
                 _rdbContext.Posts.Update(po);
-                _rdbContext.SaveChanges();
+                await _rdbContext.SaveChangesAsync();
+                await _signalRHub.Clients.All.SendAsync("LoadPosts");
                 var list = _rdbContext.Posts.Include(x => x.AppUsers).Include(x => x.PostCategories).ToList();
                 return View("/Views/Posts/Index.cshtml", list);
             }
@@ -93,17 +107,18 @@ namespace SignalRAssignment.Controllers
                 throw;
             }
         }
-        public IActionResult OnDelete(int id)
+        public async Task<IActionResult> OnDelete(int id)
         {
             try
             {
-                var post = _rdbContext.Posts.SingleOrDefault(x => x.PostID == id);
+                var post = await _rdbContext.Posts.SingleOrDefaultAsync(x => x.PostID == id);
                 if (post == null)
                 {
                     return NotFound();
                 }
                 _rdbContext.Posts.Remove(post);
-                _rdbContext.SaveChanges();
+                await _rdbContext.SaveChangesAsync();
+                await _signalRHub.Clients.All.SendAsync("LoadPosts");
                 var list = _rdbContext.Posts.Include(x => x.AppUsers).Include(x => x.PostCategories).ToList();
                 return View("/Views/Posts/Index.cshtml", list);
             }
@@ -121,17 +136,18 @@ namespace SignalRAssignment.Controllers
             ViewBag.author = authors;
             return View("/Views/Posts/Add.cshtml");
         }
-        public IActionResult OnAdd(Posts po)
+        public async Task<IActionResult> OnAdd(Posts po)
         {
             try
             {
-                var categories = _rdbContext.PostCategories.ToList();
+                var categories = await _rdbContext.PostCategories.ToListAsync();
                 ViewBag.cate = categories;
-                var authors = _rdbContext.AppUsers.ToList();
+                var authors = await _rdbContext.AppUsers.ToListAsync();
                 ViewBag.author = authors;
                 _rdbContext.Posts.Add(po);
-                _rdbContext.SaveChanges();
-                var list = _rdbContext.Posts.Include(x => x.AppUsers).Include(x => x.PostCategories).ToList();
+                await _rdbContext.SaveChangesAsync();
+                var list = await _rdbContext.Posts.Include(x => x.AppUsers).Include(x => x.PostCategories).ToListAsync();
+                await _signalRHub.Clients.All.SendAsync("LoadPosts");
                 return View("/Views/Posts/Index.cshtml", list);
             }
             catch (Exception ex)
