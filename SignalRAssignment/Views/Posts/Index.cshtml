@@ -4,9 +4,11 @@
 @{
 }
 @using SignalRAssignment.Entity
+
+
 <a href="/Posts/Add" class="btn btn-primary">Add new</a>
 <form method="post" action="/Posts/Search">
-    <input type="search" value="@ViewBag.search" name="seachValue" placeholder="enter title or content to search" class="form-control" />
+    <input type="search" value="" name="seachValue" placeholder="enter title or content to search" class="form-control" />
     <input class="btn btn-primary" type="submit" value="Search" />
 </form>
 <table class="table">
@@ -22,7 +24,35 @@
             <th>Action</th>
         </tr>
     </thead>
-    <tbody id="test">
-        
+    <tbody>
+        @{
+            foreach (Posts item in Model)
+            {
+                <tr>
+                    <td>@item.Title</td>
+                    <td>@item.Content</td>
+                    <td>@item.AppUsers.FullName</td>
+                    <td>@item.PostCategories.CategoryName</td>
+                    <td>@item.CreatedDate.ToString("dd-MM-yyyy")</td>
+                    <td>@item.UpdatedDate.ToString("dd-MM-yyyy")</td>
+                    <td>
+                        @{
+                            if (item.PublishStatus == 1)
+                            {
+                                <span class="text-success">Published</span>
+                            }
+                            else
+                            {
+                                <span class="text-danger">Not published</span>
+                            }
+                        }
+                    </td>
+                    <td>
+                        <a class="btn  btn-primary" href="/Posts/OnDelete/@item.PostID">Delete</a>
+                        <a class="btn  btn-primary" href="/Posts/Update/@item.PostID">Edit</a>
+                    </td>
+                </tr>
+            }
+        }
     </tbody>
 </table>

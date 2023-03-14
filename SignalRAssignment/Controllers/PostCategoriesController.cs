@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using SignalRAssignment.DataAccess;
 using SignalRAssignment.Entity;
+using SignalRAssignment.Hubs;
 
 namespace SignalRAssignment.Controllers
 {
@@ -9,15 +11,19 @@ namespace SignalRAssignment.Controllers
     {
         private readonly SignalRDbContext _context;
         private readonly ILogger<PostCategoriesController> _logger;
-        public PostCategoriesController(SignalRDbContext context, ILogger<PostCategoriesController> logger)
+        private readonly IHubContext<SignalRServer> _signalRHub;
+        public PostCategoriesController(SignalRDbContext context, 
+            ILogger<PostCategoriesController> logger,
+            IHubContext<SignalRServer> signalRHub)
         {
             _context = context;
             _logger = logger;
+            _signalRHub = signalRHub;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var list = _context.PostCategories.ToList();
+            var list = await _context.PostCategories.ToListAsync();
             return View(list);
         }
         public IActionResult Update(int id)
@@ -33,12 +39,13 @@ namespace SignalRAssignment.Controllers
                 throw;
             }
         }
-        public IActionResult OnUpdate(PostCategories po)
+        public async Task<IActionResult> OnUpdate(PostCategories po)
         {
             try
             {
                 _context.PostCategories.Update(po);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
+                await _signalRHub.Clients.All.SendAsync("LoadPostCate");
                 var list = _context.PostCategories.ToList();
                 return View("/Views/PostCategories/Index.cshtml", list);
             }
@@ -48,17 +55,18 @@ namespace SignalRAssignment.Controllers
                 throw;
             }
         }
-        public IActionResult OnDelete(int id)
+        public async Task<IActionResult> OnDelete(int id)
         {
             try
             {
-                var post = _context.PostCategories.SingleOrDefault(x => x.CategoryId == id);
+                var post = await _context.PostCategories.SingleOrDefaultAsync(x => x.CategoryId == id);
                 if (post == null)
                 {
                     return NotFound();
                 }
                 _context.PostCategories.Remove(post);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
+                await _signalRHub.Clients.All.SendAsync("LoadPostCate");
                 var list = _context.PostCategories.ToList();
                 return View("/Views/PostCategories/Index.cshtml", list);
             }
@@ -72,12 +80,13 @@ namespace SignalRAssignment.Controllers
         {
             return View();
         }
-        public IActionResult OnAdd(PostCategories po)
+        public async Task<IActionResult> OnAdd(PostCategories po)
         {
             try
             {
                 _context.PostCategories.Add(po);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
+                await _signalRHub.Clients.All.SendAsync("LoadPostCate");
                 var list = _context.PostCategories.ToList();
                 return View("/Views/PostCategories/Index.cshtml", list);
             }

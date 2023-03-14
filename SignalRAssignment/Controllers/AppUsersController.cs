@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using SignalRAssignment.DataAccess;
 using SignalRAssignment.Entity;
+using SignalRAssignment.Hubs;
 
 namespace SignalRAssignment.Controllers
 {
@@ -8,15 +11,19 @@ namespace SignalRAssignment.Controllers
     {
         private readonly SignalRDbContext _context;
         private readonly ILogger<AppUsersController> _logger;
-        public AppUsersController(SignalRDbContext context, ILogger<AppUsersController> logger)
+        private readonly IHubContext<SignalRServer> _signalRHub;
+        public AppUsersController(SignalRDbContext context, 
+            ILogger<AppUsersController> logger,
+            IHubContext<SignalRServer> signalRHub)
         {
             _context = context;
             _logger = logger;
+            _signalRHub = signalRHub;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var users = _context.AppUsers.ToList();
+            var users = await _context.AppUsers.ToListAsync();
             return View(users);
         }
         public IActionResult Update(int id)
@@ -32,12 +39,13 @@ namespace SignalRAssignment.Controllers
                 throw;
             }
         }
-        public IActionResult OnUpdate(AppUsers us)
+        public async Task<IActionResult> OnUpdate(AppUsers us)
         {
             try
             {
                 _context.AppUsers.Update(us);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
+                await _signalRHub.Clients.All.SendAsync("LoadApp");
                 var list = _context.AppUsers.ToList();
                 return View("/Views/AppUsers/Index.cshtml", list);
             }
@@ -47,17 +55,18 @@ namespace SignalRAssignment.Controllers
                 throw;
             }
         }
-        public IActionResult OnDelete(int id)
+        public async Task<IActionResult> OnDelete(int id)
         {
             try
             {
-                var user = _context.AppUsers.SingleOrDefault(x => x.UserId == id);
+                var user = await _context.AppUsers.SingleOrDefaultAsync(x => x.UserId == id);
                 if (user == null)
                 {
                     return NotFound();
                 }
                 _context.AppUsers.Remove(user);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
+                await _signalRHub.Clients.All.SendAsync("LoadApp");
                 var list = _context.AppUsers.ToList();
                 return View("/Views/AppUsers/Index.cshtml", list);
             }
@@ -71,12 +80,13 @@ namespace SignalRAssignment.Controllers
         {
             return View();
         }
-        public IActionResult OnAdd(AppUsers us)
+        public async Task<IActionResult> OnAdd(AppUsers us)
         {
             try
             {
                 _context.AppUsers.Add(us);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
+                await _signalRHub.Clients.All.SendAsync("LoadApp");
                 var list = _context.AppUsers.ToList();
                 return View("/Views/AppUsers/Index.cshtml", list);
             }

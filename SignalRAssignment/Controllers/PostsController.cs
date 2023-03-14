@@ -35,12 +35,12 @@ namespace SignalRAssignment.Controllers
                 throw;
             }
         }
-        [HttpGet]
-        public IActionResult GetPost()
-        {
-            var list = _rdbContext.Posts.Include(x => x.AppUsers).Include(x => x.PostCategories).ToList();
-            return Ok(list);
-        }
+        //[HttpGet]
+        //public IActionResult GetPost()
+        //{
+        //    var list = _rdbContext.Posts.Include(x => x.AppUsers).Include(x => x.PostCategories).ToList();
+        //    return Ok(list);
+        //}
         public IActionResult Search(string seachValue)
         {
             try
@@ -119,7 +119,7 @@ namespace SignalRAssignment.Controllers
                 _rdbContext.Posts.Remove(post);
                 await _rdbContext.SaveChangesAsync();
                 await _signalRHub.Clients.All.SendAsync("LoadPosts");
-                var list = _rdbContext.Posts.Include(x => x.AppUsers).Include(x => x.PostCategories).ToList();
+                var list = await _rdbContext.Posts.Include(x => x.AppUsers).Include(x => x.PostCategories).ToListAsync();
                 return View("/Views/Posts/Index.cshtml", list);
             }
             catch (Exception ex)
@@ -146,8 +146,8 @@ namespace SignalRAssignment.Controllers
                 ViewBag.author = authors;
                 _rdbContext.Posts.Add(po);
                 await _rdbContext.SaveChangesAsync();
-                var list = await _rdbContext.Posts.Include(x => x.AppUsers).Include(x => x.PostCategories).ToListAsync();
                 await _signalRHub.Clients.All.SendAsync("LoadPosts");
+                var list = await _rdbContext.Posts.Include(x => x.AppUsers).Include(x => x.PostCategories).ToListAsync();
                 return View("/Views/Posts/Index.cshtml", list);
             }
             catch (Exception ex)
