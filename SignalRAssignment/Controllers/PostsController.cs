@@ -13,7 +13,7 @@ namespace SignalRAssignment.Controllers
         private readonly ILogger<PostsController> _logger;
         private readonly SignalRDbContext _rdbContext;
         private readonly IHubContext<SignalRServer> _signalRHub;
-        private readonly int TotalItemsInPage = 2;
+        private readonly int TotalItemsInPage = 10;
         public PostsController(ILogger<PostsController> logger, 
             SignalRDbContext rdbContext,
             IHubContext<SignalRServer> hubContext
@@ -41,7 +41,7 @@ namespace SignalRAssignment.Controllers
                     list.Count / TotalItemsInPage :
                     (list.Count / TotalItemsInPage) + 1;
                 ViewBag.totalPage = totalPage;
-                list = list.Skip(page * TotalItemsInPage).Take(TotalItemsInPage).ToList();
+                list = list.Skip((page - 1) * TotalItemsInPage).Take(TotalItemsInPage).ToList();
                 return View(list);
             }
             catch (Exception ex)
@@ -50,41 +50,7 @@ namespace SignalRAssignment.Controllers
                 throw;
             }
         }
-        //[HttpGet]
-        //public IActionResult GetPost()
-        //{
-        //    var list = _rdbContext.Posts.Include(x => x.AppUsers).Include(x => x.PostCategories).ToList();
-        //    return Ok(list);
-        //}
-        //public IActionResult Search(string seachValue)
-        //{
-        //    try
-        //    {
-        //        List<Posts> result = new List<Posts>();
-        //        if (String.IsNullOrEmpty(seachValue))
-        //        {
-        //            result = _rdbContext.Posts.
-        //        Include(x => x.AppUsers).
-        //        Include(x => x.PostCategories).ToList();
-        //        }
-        //        else
-        //        {
-        //            result = _rdbContext.Posts.Where(x => x.PublishStatus == 1
-        //        && (x.Title.Contains(seachValue)
-        //        || x.Content.Contains(seachValue))).
-        //        Include(x => x.AppUsers).
-        //        Include(x => x.PostCategories).
-        //        ToList();
-        //        }
-        //        ViewBag.search = seachValue;
-        //        return View("/Views/Posts/Index.cshtml", result);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.LogError(ex.Message);
-        //        throw;
-        //    }
-        //}
+       
         public IActionResult Update(int id)
         {
             try
