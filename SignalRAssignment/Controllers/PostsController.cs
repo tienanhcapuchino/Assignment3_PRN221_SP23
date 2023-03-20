@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using SignalRAssignment.DataAccess;
 using SignalRAssignment.Entity;
 using SignalRAssignment.Hubs;
+using SignalRAssignment.Models;
 
 namespace SignalRAssignment.Controllers
 {
@@ -12,6 +13,7 @@ namespace SignalRAssignment.Controllers
         private readonly ILogger<PostsController> _logger;
         private readonly SignalRDbContext _rdbContext;
         private readonly IHubContext<SignalRServer> _signalRHub;
+        private readonly int TotalItemsInPage = 2;
         public PostsController(ILogger<PostsController> logger, 
             SignalRDbContext rdbContext,
             IHubContext<SignalRServer> hubContext
@@ -22,11 +24,24 @@ namespace SignalRAssignment.Controllers
             _signalRHub = hubContext;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page, string search)
         {
             try
             {
                 var list = await _rdbContext.Posts.Include(x => x.AppUsers).Include(x => x.PostCategories).ToListAsync();
+                if (!String.IsNullOrEmpty(search))
+                {
+                    list = list.Where(x => x.Title.ToLower().Contains(search.ToLower())
+                    || x.Content.ToLower().Contains(search.ToLower()))
+                        .ToList();
+                }
+                ViewBag.search = search;
+                ViewBag.page = page;
+                int totalPage = list.Count % TotalItemsInPage == 0 ?
+                    list.Count / TotalItemsInPage :
+                    (list.Count / TotalItemsInPage) + 1;
+                ViewBag.totalPage = totalPage;
+                list = list.Skip(page * TotalItemsInPage).Take(TotalItemsInPage).ToList();
                 return View(list);
             }
             catch (Exception ex)
