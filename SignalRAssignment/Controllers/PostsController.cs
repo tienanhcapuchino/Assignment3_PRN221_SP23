@@ -24,18 +24,18 @@ namespace SignalRAssignment.Controllers
             _signalRHub = hubContext;
         }
 
-        public async Task<IActionResult> Index(int page, string search)
+        public async Task<IActionResult> Index(int page = 1, string? seachValue = null)
         {
             try
             {
                 var list = await _rdbContext.Posts.Include(x => x.AppUsers).Include(x => x.PostCategories).ToListAsync();
-                if (!String.IsNullOrEmpty(search))
+                if (!String.IsNullOrEmpty(seachValue))
                 {
-                    list = list.Where(x => x.Title.ToLower().Contains(search.ToLower())
-                    || x.Content.ToLower().Contains(search.ToLower()))
+                    list = list.Where(x => x.Title.ToLower().Contains(seachValue.ToLower())
+                    || x.Content.ToLower().Contains(seachValue.ToLower()))
                         .ToList();
                 }
-                ViewBag.search = search;
+                ViewBag.search = seachValue;
                 ViewBag.page = page;
                 int totalPage = list.Count % TotalItemsInPage == 0 ?
                     list.Count / TotalItemsInPage :
@@ -56,35 +56,35 @@ namespace SignalRAssignment.Controllers
         //    var list = _rdbContext.Posts.Include(x => x.AppUsers).Include(x => x.PostCategories).ToList();
         //    return Ok(list);
         //}
-        public IActionResult Search(string seachValue)
-        {
-            try
-            {
-                List<Posts> result = new List<Posts>();
-                if (String.IsNullOrEmpty(seachValue))
-                {
-                    result = _rdbContext.Posts.
-                Include(x => x.AppUsers).
-                Include(x => x.PostCategories).ToList();
-                }
-                else
-                {
-                    result = _rdbContext.Posts.Where(x => x.PublishStatus == 1
-                && (x.Title.Contains(seachValue)
-                || x.Content.Contains(seachValue))).
-                Include(x => x.AppUsers).
-                Include(x => x.PostCategories).
-                ToList();
-                }
-                ViewBag.search = seachValue;
-                return View("/Views/Posts/Index.cshtml", result);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.Message);
-                throw;
-            }
-        }
+        //public IActionResult Search(string seachValue)
+        //{
+        //    try
+        //    {
+        //        List<Posts> result = new List<Posts>();
+        //        if (String.IsNullOrEmpty(seachValue))
+        //        {
+        //            result = _rdbContext.Posts.
+        //        Include(x => x.AppUsers).
+        //        Include(x => x.PostCategories).ToList();
+        //        }
+        //        else
+        //        {
+        //            result = _rdbContext.Posts.Where(x => x.PublishStatus == 1
+        //        && (x.Title.Contains(seachValue)
+        //        || x.Content.Contains(seachValue))).
+        //        Include(x => x.AppUsers).
+        //        Include(x => x.PostCategories).
+        //        ToList();
+        //        }
+        //        ViewBag.search = seachValue;
+        //        return View("/Views/Posts/Index.cshtml", result);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger.LogError(ex.Message);
+        //        throw;
+        //    }
+        //}
         public IActionResult Update(int id)
         {
             try
